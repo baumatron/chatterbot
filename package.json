@@ -1,0 +1,22 @@
+{
+  "name": "chatterbot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/baumatron/chatterbot.git"
+  },
+  "author": "b.baumhover@gmail.com",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/baumatron/chatterbot/issues"
+  },
+  "homepage": "https://github.com/baumatron/chatterbot#readme",
+  "dependencies": {
+    "@slack/client": "^3.8.1"
+  }
+}
