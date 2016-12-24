@@ -202,6 +202,9 @@ function ExportModule() {
 
         var seedSequence;
         if (seedText) {
+            if (seedText.length < self.markovData.order) {
+                seedText += " ".repeat(self.markovData.order - seedText.length);
+            }
             seedSequence = seedText.substr(0, self.markovData.order);
             if (!self.markovData.gramNextStates[seedText]) {
                 self.processText(seedText);

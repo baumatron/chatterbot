@@ -54,7 +54,9 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
         if (message.text) {
            if (-1 != message.text.search(selfId)) {
                 // Bot was mentioned
-                rtm.sendMessage(sentiment.generateMessage(), message.channel);
+                var mention = '<@' + selfId + '>';
+                stringWithoutId = message.text.replace(mention, '').trim();
+                rtm.sendMessage(sentiment.generateMessage(stringWithoutId), message.channel);
             } else {
                 sentiment.processText(message.text);
                 sentiment.save();
