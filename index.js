@@ -58,9 +58,10 @@ function processNewMessage(message, allowResponse) {
         console.log('Message:', message);
         if (message.text) {
            if (-1 != message.text.search(selfId)) {
-                // Bot was mentioned
-                var mention = '<@' + selfId + '>';
-                stringWithoutId = message.text.replace(mention, '').trim();
+                // Bot was mentioned. Replace mention with mention of whoever made the mention.
+                newMessageText = message.text.replace(selfId, message.user);
+                sentiment.processText(newMessageText);
+                sentiment.save();
                 if (allowResponse) {
                     rtm.sendMessage(sentiment.generateMessage(stringWithoutId), message.channel);
                 }
