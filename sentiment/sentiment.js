@@ -164,7 +164,7 @@ function ExportModule() {
 
     this.load = function() {
         fs.readFile(self.markovDataFile, function(error, data) {
-            if (!error) {
+            if (!error && data.length > 0) {
                 var jsonObject = JSON.parse(data);
                 self.markovData = new MarkovData();
                 for (var property in jsonObject) {
@@ -174,7 +174,7 @@ function ExportModule() {
         });
 
         fs.readFile(self.textDataFile, function(error, data) {
-            if (!error) {
+            if (!error && data.length > 0) {
                 var jsonObject = JSON.parse(data);
                 self.textData = new TextData();
                 for (var property in jsonObject) {

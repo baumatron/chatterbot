@@ -10,7 +10,7 @@ var sentiment = require('./sentiment');
 
 var rtm = new RtmClient(bot_token);
 
-var channelId;
+var testChannelId;
 var selfId;
 var isPassive = true;
 var readHistory = true;
@@ -22,7 +22,7 @@ rtm.on(RTM_CLIENT_EVENTS.AUTHENTICATED, function (rtmStartData) {
     for (var i = 0; i < rtmStartData.channels.length; i++) {
         channel = rtmStartData.channels[i];
         if (channel.name === "testing") {
-            channelId = channel.id;
+            testChannelId = channel.id;
         }
 
         if (readHistory &&
@@ -32,7 +32,8 @@ rtm.on(RTM_CLIENT_EVENTS.AUTHENTICATED, function (rtmStartData) {
                 responseObject = JSON.parse(responseBody);
                 if ('messages' in responseObject) {
                     for (var j = 0; j < responseObject.messages.length; j++) {
-                        sentiment.processText(responseObject.messages[j].text);
+                        var message = responseObject.messages[j];
+                        processNewMessage(message, false);
                     }
                 }
             });
@@ -42,28 +43,36 @@ rtm.on(RTM_CLIENT_EVENTS.AUTHENTICATED, function (rtmStartData) {
 
 rtm.on(RTM_CLIENT_EVENTS.RTM_CONNECTION_OPENED, function() {
     if (!isPassive) {
-        rtm.sendMessage(sentiment.generateMessage(), channelId);
+        rtm.sendMessage(sentiment.generateMessage(), testChannelId);
     }
 });
 
-
-
 rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
-    if (message.user !== selfId) {
-        console.log('Message:', message); //this is no doubt the lamest possible message handler, but you get the idea
+    processNewMessage(message, true);
+});
+
+function processNewMessage(message, allowResponse) {
+    if (message.subtype) {
+        console.log ('Ignoring message because it had a subtype.');
+    } else if (message.user !== selfId) {
+        console.log('Message:', message);
         if (message.text) {
            if (-1 != message.text.search(selfId)) {
                 // Bot was mentioned
                 var mention = '<@' + selfId + '>';
                 stringWithoutId = message.text.replace(mention, '').trim();
-                rtm.sendMessage(sentiment.generateMessage(stringWithoutId), message.channel);
+                if (allowResponse) {
+                    rtm.sendMessage(sentiment.generateMessage(stringWithoutId), message.channel);
+                }
             } else {
                 sentiment.processText(message.text);
                 sentiment.save();
-                if (!isPassive) {
-                    rtm.sendMessage(sentiment.generateMessage(), message.channel);
-                } else {
-                    rtm.sendMessage(sentiment.generateMessage(), channelId);
+                if (allowResponse) {
+                    if (!isPassive) {
+                        rtm.sendMessage(sentiment.generateMessage(), message.channel);
+                    } else {
+                        rtm.sendMessage(sentiment.generateMessage(), testChannelId);
+                    }
                 }
             }
         }
@@ -73,14 +82,7 @@ rtm.on(RTM_EVENTS.MESSAGE, function handleRtmMessage(message) {
     } else {
         console.log('Ignoring message because came from self: ', message);
     }
-});
-
-sentiment.setup();
-
-rtm.start();
-
-
-
+}
 
 function getMessages(token, channelId, callback) {
 
@@ -100,3 +102,7 @@ function getMessages(token, channelId, callback) {
         });
     }).end();
 }
+
+sentiment.setup();
+
+rtm.start();
