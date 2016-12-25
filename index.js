@@ -58,10 +58,20 @@ function processNewMessage(message, allowResponse) {
         console.log('Message:', message);
         if (message.text) {
            if (-1 != message.text.search(selfId)) {
-                // Bot was mentioned. Replace mention with mention of whoever made the mention.
-                newMessageText = message.text.replace(selfId, message.user);
-                sentiment.processText(newMessageText);
-                sentiment.save();
+
+                // Clean the bot mention from the message. Leaving this in leads to
+                // the bot starting its response with a mention and ignoring the
+                // rest of the message. Ideally there would be another
+                // way to trigger the bot.
+                var newMessageText = message.text.replace('<@' + selfId + '>', '').trim();
+
+                if (newMessageText.length > 0) {
+                    // Injest the message without the mention of self at the beginning since that
+                    // tends to limit responses.
+                    sentiment.processText(newMessageText);
+                    sentiment.save();
+                }
+
                 if (allowResponse) {
                     rtm.sendMessage(sentiment.generateMessage(newMessageText), message.channel);
                 }

@@ -206,9 +206,6 @@ function ExportModule() {
                 seedText += " ".repeat(self.markovData.order - seedText.length);
             }
             seedSequence = seedText.substr(0, self.markovData.order);
-            if (!self.markovData.gramNextStates[seedText]) {
-                self.processText(seedText);
-            }
         } else {
             seedSequence = "";
         }
@@ -216,9 +213,6 @@ function ExportModule() {
         //      a start sequence sometimes doesn't have probabilities. Should
         //      fix this.
         var tries = 0;
-        if (!seedSequence) {
-            seedSequence = "";
-        }
         while (!self.markovData.gramNextStates[seedSequence]) {
             seedSequence = utilities.randomElement(seedSequences);
             console.log('seedSequence :' + seedSequence);
