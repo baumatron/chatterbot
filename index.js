@@ -63,7 +63,7 @@ function processNewMessage(message, allowResponse) {
                 sentiment.processText(newMessageText);
                 sentiment.save();
                 if (allowResponse) {
-                    rtm.sendMessage(sentiment.generateMessage(stringWithoutId), message.channel);
+                    rtm.sendMessage(sentiment.generateMessage(newMessageText), message.channel);
                 }
             } else {
                 sentiment.processText(message.text);
